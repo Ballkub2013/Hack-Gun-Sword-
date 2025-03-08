@@ -1,0 +1,56 @@
+-- 1. โหลด Service ที่จำเป็น
+local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+
+-----------------------------------------------
+-- 2. สร้าง UI หลัก (ScreenGui และ MainFrame)
+-----------------------------------------------
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "OwerlordShopUI"
+ScreenGui.Parent = PlayerGui
+ScreenGui.ResetOnSpawn = false
+
+local MainFrame = Instance.new("Frame")
+MainFrame.Name = "MainFrame"
+MainFrame.Parent = ScreenGui
+MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+MainFrame.Size = UDim2.new(0, 350, 0, 450)
+MainFrame.Position = UDim2.new(0.5, -175, 0.5, -225)
+MainFrame.BorderSizePixel = 0
+MainFrame.Visible = true
+MainFrame.ClipsDescendants = true
+MainFrame.Active = true
+MainFrame.Draggable = true
+
+local UICorner_Main = Instance.new("UICorner", MainFrame)
+UICorner_Main.CornerRadius = UDim.new(0, 12)
+
+------------------------------------------------------
+-- 3. เพิ่มหัวข้อ "Owerlord Shop" พร้อมโลโก้
+------------------------------------------------------
+local TitleFrame = Instance.new("Frame")
+TitleFrame.Parent = MainFrame
+TitleFrame.BackgroundTransparency = 1
+TitleFrame.Size = UDim2.new(1, 0, 0, 60)
+
+local LogoImage = Instance.new("ImageLabel")
+LogoImage.Parent = TitleFrame
+LogoImage.BackgroundTransparency = 1
+LogoImage.Size = UDim2.new(0, 40, 0, 40)
+LogoImage.Position = UDim2.new(0.5, -20, 0, 5)
+LogoImage.Image = "rbxassetid://YOUR_IMAGE_ID" -- เปลี่ยนเป็น ID รูปที่ต้องการ
+
+local TitleLabel = Instance.new("TextLabel")
+TitleLabel.Parent = TitleFrame
+TitleLabel.BackgroundTransparency = 1
+TitleLabel.Size = UDim2.new(1, 0, 0, 50)
+TitleLabel.Font = Enum.Font.GothamBold
+TitleLabel.Text = "Owerlord Shop"
+TitleLabel.TextSize = 22
+TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+TitleLabel.TextStrokeTransparency = 0.5
+TitleLabel.Position = UDim2.new(0, 0, 0, 50)
