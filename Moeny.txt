@@ -1,0 +1,14 @@
+local StarterGui = game:GetService("StarterGui") local notificationShown = false
+
+while wait(2) do -- แสดงข้อความแจ้งเตือนเพียงครั้งเดียว if not notificationShown then StarterGui:SetCore("SendNotification", { Title = "คำเตือน", Text = "ห้ามขายจากOwerlord", Duration = 3, }) notificationShown = true  -- ตั้งค่า flag เพื่อไม่ให้แสดงซ้ำ end
+
+-- วนลูปเพื่อเปิดใช้งาน ProximityPrompt
+for i, v in pairs(workspace:GetDescendants()) do
+if v:IsA("ProximityPrompt") then
+v.Enabled = true
+v.HoldDuration = 0
+end
+end
+
+end
+
