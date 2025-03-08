@@ -1,0 +1,25 @@
+_G.HeadSize = 20 _G.Disabled = true
+
+local Players = game:GetService('Players') local RunService = game:GetService('RunService') local LocalPlayer = Players.LocalPlayer local PlayerGui = LocalPlayer:FindFirstChild("PlayerGui") or Instance.new("PlayerGui", LocalPlayer)
+
+-- Function to show UI message local function showMessage() local screenGui = Instance.new("ScreenGui") screenGui.Parent = PlayerGui
+
+local textLabel = Instance.new("TextLabel")
+textLabel.Size = UDim2.new(0.5, 0, 0.1, 0)
+textLabel.Position = UDim2.new(0.25, 0, 0.4, 0)
+textLabel.Text = "By Owerlord"
+textLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+textLabel.TextScaled = true
+textLabel.BackgroundTransparency = 1
+textLabel.Parent = screenGui
+
+-- Remove after 3 seconds
+task.wait(3)
+screenGui:Destroy()
+
+end
+
+showMessage()
+
+RunService.RenderStepped:Connect(function() if _G.Disabled then for _, v in pairs(Players:GetPlayers()) do if v ~= LocalPlayer and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then pcall(function() local hrp = v.Character.HumanoidRootPart hrp.Size = Vector3.new(_G.HeadSize, _G.HeadSize, _G.HeadSize) hrp.Transparency = 0.7 hrp.BrickColor = BrickColor.new("Really blue") hrp.Material = Enum.Material.Neon hrp.CanCollide = false end) end end end end)
+
