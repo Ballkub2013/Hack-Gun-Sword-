@@ -1,0 +1,265 @@
+-- การตั้งค่าหลัก
+local Players = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
+local StarterGui = game:GetService("StarterGui")
+local Lighting = game:GetService("Lighting")
+local Terrain = Workspace:FindFirstChildOfClass("Terrain")
+
+-- การตั้งค่าต่างๆ
+local BadInstances = {"DataModelMesh", "FaceInstance", "ParticleEmitter", "Trail", "Smoke", "Fire", "Sparkles", "PostEffect", "Explosion", "Clothing", "BasePart"}
+local CanBeEnabled = {"ParticleEmitter", "Trail", "Smoke", "Fire", "Sparkles", "PostEffect"}
+
+-- ฟังก์ชันตรวจสอบการตั้งค่าของผู้ใช้
+local function IsSettingEnabled(setting)
+    return _G.Settings[setting] or (_G.Settings.Other and _G.Settings.Other[setting]) 
+end
+
+-- ฟังก์ชันตรวจสอบว่า Instance เป็นส่วนหนึ่งของ Character หรือไม่
+local function PartOfCharacter(Instance)
+    for _, player in pairs(Players:GetPlayers()) do
+        if player.Character and Instance:IsDescendantOf(player.Character) then
+            return true
+        end
+    end
+    return false
+end
+
+-- ฟังก์ชันสำหรับจัดการการทำงานของกราฟิกต่างๆ
+local function AdjustGraphics()
+    if IsSettingEnabled("Low Water Graphics") then
+        Terrain.WaterWaveSize = 0
+        Terrain.WaterWaveSpeed = 0
+        Terrain.WaterReflectance = 0
+        Terrain.WaterTransparency = 0
+    end
+
+    if IsSettingEnabled("No Shadows") then
+        Lighting.GlobalShadows = false
+    end
+
+    if IsSettingEnabled("Low Rendering") then
+        settings().Rendering.QualityLevel = 1
+    end
+end
+
+-- ฟังก์ชันตรวจสอบว่ามีการเปลี่ยนแปลงวัสดุหรือไม่
+local function CheckPartMaterial(part)
+    if part:IsA("BasePart") then
+        if part.Material ~= Enum.Material.Plastic then
+            part.Material = Enum.Material.Plastic
+            part.Reflectance = 0
+        end
+    end
+end
+
+-- ฟังก์ชันทำให้ค้างโดยการเพิ่ม Force
+local function MakePartStatic(part)
+    if part:IsA("BasePart") then
+        local bodyGyro = Instance.new("BodyGyro")
+        local bodyPosition = Instance.new("BodyPosition")
+        
+        bodyGyro.MaxTorque = Vector3.new(400000, 400000, 400000)
+        bodyGyro.D = 1000
+        bodyGyro.CFrame = part.CFrame
+        bodyGyro.Parent = part
+        
+        bodyPosition.MaxForce = Vector3.new(400000, 400000, 400000)
+        bodyPosition.D = 1000
+        bodyPosition.CFrame = part.CFrame
+        bodyPosition.Parent = part
+    end
+end
+
+-- ฟังก์ชันการตรวจสอบว่ามีสิ่งผิดปกติเกิดขึ้นกับวัสดุของส่วนในโลก
+local function CheckWorldMaterialChanges()
+    for _, part in pairs(Workspace:GetDescendants()) do
+        if part:IsA("BasePart") then
+            CheckPartMaterial(part)
+            MakePartStatic(part)
+        end
+    end
+end
+
+-- ฟังก์ชันที่ตรวจสอบและทำให้ความโปร่งใสเป็น 0
+local function SetTransparencyToZero(instance)
+    if instance:IsA("BasePart") then
+        instance.Transparency = 0
+    end
+end
+
+-- ฟังก์ชันทำลายสิ่งที่ไม่ต้องการในเกม
+local function DestroyUnnecessaryParts()
+    for _, part in pairs(Workspace:GetDescendants()) do
+        if part:IsA("BasePart") and part.Material == Enum.Material.SmoothPlastic then
+            part:Destroy()
+        end
+    end
+end
+
+-- ฟังก์ชันทำให้ไม่แสดงผลของ Explosion
+local function DisableExplosionEffects()
+    for _, exp in pairs(Workspace:GetDescendants()) do
+        if exp:IsA("Explosion") then
+            exp.Visible = false
+        end
+    end
+end
+
+-- ฟังก์ชันปรับลดขนาดของวัตถุ
+local function ReducePartSize()
+    for _, part in pairs(Workspace:GetDescendants()) do
+        if part:IsA("BasePart") then
+            part.Size = part.Size * 0.5
+        end
+    end
+end
+
+-- ฟังก์ชันปรับปรุงความเร็วในการโหลด
+local function ImproveLoadingSpeed()
+    game:GetService("Players").PlayerAdded:Connect(function(player)
+        if player.Character then
+            player.Character:WaitForChild("HumanoidRootPart")
+            -- ให้เวลาในการโหลด
+            task.wait(1)
+        end
+    end)
+end
+
+-- ฟังก์ชันการตรวจสอบความโปร่งใส
+local function AdjustTransparency(instance)
+    if instance:IsA("BasePart") then
+        if instance.Transparency > 0.5 then
+            instance.Transparency = 0.2
+        end
+    end
+end
+
+-- ฟังก์ชันลดความละเอียดของ Mesh
+local function AdjustMeshDetail()
+    for _, mesh in pairs(Workspace:GetDescendants()) do
+        if mesh:IsA("MeshPart") then
+            mesh.MeshId = "rbxassetid://0"  -- ตัวอย่างการลดความละเอียด
+        end
+    end
+end
+
+-- ฟังก์ชันการบีบอัดข้อมูล
+local function CompressTextures()
+    for _, texture in pairs(Workspace:GetDescendants()) do
+        if texture:IsA("Texture") then
+            texture.TextureId = "rbxassetid://0"  -- ลดขนาดเทกเจอร์
+        end
+    end
+end
+
+-- ฟังก์ชันจัดการกับการตั้งค่ากราฟิก
+local function ManageGraphicsSettings()
+    if IsSettingEnabled("Low Water Graphics") then
+        Terrain.WaterTransparency = 1
+    end
+end
+
+-- ฟังก์ชันปรับสมดุลการใช้ CPU
+local function OptimizeCPUUsage()
+    game:GetService("RunService").Heartbeat:Connect(function()
+        task.wait(1 / 60)  -- จำกัดการใช้งาน CPU
+    end)
+end
+
+-- ฟังก์ชันเพิ่มการประมวลผล
+local function BoostProcessingPower()
+    game:GetService("RunService").Heartbeat:Connect(function()
+        -- การทำให้สคริปต์เร็วขึ้น
+        task.wait(0.1)
+    end)
+end
+
+-- ฟังก์ชันการตั้งค่าห้องทดลองให้เป็นไปในทิศทางที่ต้องการ
+local function ConfigureTestEnvironment()
+    game:GetService("Workspace").TestEnvironment:WaitForChild("Start")
+end
+
+-- ฟังก์ชันการปิดการใช้งาน Part บางประเภท
+local function DisableSpecificParts()
+    for _, part in pairs(Workspace:GetDescendants()) do
+        if part:IsA("Part") then
+            part.CanCollide = false
+        end
+    end
+end
+
+-- ฟังก์ชันตรวจสอบการเคลื่อนไหวของ Part
+local function CheckPartMovement()
+    for _, part in pairs(Workspace:GetDescendants()) do
+        if part:IsA("BasePart") then
+            if part.Velocity.Magnitude > 0 then
+                -- หยุดการเคลื่อนไหว
+                part.Velocity = Vector3.new(0, 0, 0)
+            end
+        end
+    end
+end
+
+-- ฟังก์ชันการตรวจสอบจำนวนของ Part ที่มีอยู่
+local function CheckPartCount()
+    local partCount = 0
+    for _, part in pairs(Workspace:GetDescendants()) do
+        if part:IsA("BasePart") then
+            partCount = partCount + 1
+        end
+    end
+    print("จำนวน BasePart ในโลกนี้: " .. partCount)
+end
+
+-- ฟังก์ชันเพิ่มการตรวจสอบการบีบอัดของวัตถุ
+local function CompressParts()
+    for _, part in pairs(Workspace:GetDescendants()) do
+        if part:IsA("BasePart") then
+            part.Material = Enum.Material.Plastic
+        end
+    end
+end
+
+-- ฟังก์ชันจัดการพื้นหลัง
+local function AdjustBackground()
+    game:GetService("Lighting").BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+end
+
+-- ฟังก์ชันการจัดการการกระทำของผู้เล่น
+local function ManagePlayerActions()
+    for _, player in pairs(Players:GetPlayers()) do
+        player.CharacterAdded:Connect(function(character)
+            local humanoid = character:WaitForChild("Humanoid")
+            humanoid.WalkSpeed = 16  -- ปรับความเร็วในการเดิน
+        end)
+    end
+end
+
+-- ฟังก์ชันการตั้งค่าภาพกราฟิก
+local function SetGraphics()
+    game:GetService("Lighting").Ambient = Color3.fromRGB(128, 128, 128)
+end
+
+-- เริ่มต้นฟังก์ชันทั้งหมด
+AdjustGraphics()
+CheckWorldMaterialChanges()
+ReducePartSize()
+DisableExplosionEffects()
+ImproveLoadingSpeed()
+AdjustTransparency()
+AdjustMeshDetail()
+CompressTextures()
+ManageGraphicsSettings()
+OptimizeCPUUsage()
+BoostProcessingPower()
+ConfigureTestEnvironment()
+DisableSpecificParts()
+CheckPartMovement()
+CheckPartCount()
+CompressParts()
+AdjustBackground()
+ManagePlayerActions()
+SetGraphics()
+
+-- แจ้งผลการทำงาน
+print("ขอบคุณที่ไว้ใจ " .. เรา .. " By owerlord!")
